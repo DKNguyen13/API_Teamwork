@@ -33,7 +33,7 @@ public class AuthService {
     @Autowired
     private JavaMailSender mailSender;
 
-    private Map<String, String> otpCache = new HashMap<>();
+    public Map<String, String> otpCache = new HashMap<>();
 
     public void SaveOtp(String email, String otp) {
         otpCache.put(email, otp);
@@ -102,4 +102,5 @@ public class AuthService {
             return false;  // Nếu không tìm thấy bản ghi MX, domain không hợp lệ
         }
     }
+
 }

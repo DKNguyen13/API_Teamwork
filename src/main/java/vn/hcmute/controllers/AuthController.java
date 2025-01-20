@@ -1,7 +1,6 @@
 package vn.hcmute.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.web.bind.annotation.*;
 import vn.hcmute.entity.User;
 import vn.hcmute.repository.UserRepository;
@@ -49,8 +48,23 @@ public class AuthController {
 
         // Lưu người dùng mới vào cơ sở dữ liệu
         userRepository.save(newUser);
+        authService.otpCache.remove(newUser.getEmail());
         return "User registered successfully";  // Trả về thông báo đăng ký thành công
     }
-    // Helper method to check if email format is valid
 
+    @PostMapping("/forgotPassword")
+    public String ForgotPassword(@RequestParam String email, @RequestParam String pass, @RequestParam String otp) {
+        if(!userRepository.findByEmail(email).isPresent()) {
+            return "Email not found";
+        }
+        // Kiểm tra OTP người dùng nhập vào
+        if (!authService.VerifyOtp(email, otp)) {
+            return "Invalid OTP";  // Trả về thông báo nếu OTP không chính xác
+        }
+        User u = userRepository.findUserByEmail(email);
+        u.setPassword(pass);
+        userRepository.save(u);
+        authService.otpCache.remove(email);
+        return "User forgot password successfully";
+    }
 }
